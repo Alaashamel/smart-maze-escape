@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Maze Escape</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Top Bar UI -->
+    <header id="top-bar">
+        <div class="header-left">
+            <span class="game-title">🧩 Smart Maze Escape</span>
+            <span id="level-display" class="info-badge">Level: Easy</span>
+        </div>
+        <div class="header-center">
+            <div class="stat-item">
+                <span class="stat-icon">⭐</span>
+                <span id="score-display">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">🔑</span>
+                <span id="keys-display">0 / 3</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">⏱️</span>
+                <span id="timer-display">00:00</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">👾</span>
+                <span id="guardian-count">0</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-primary" id="btn-restart">🔄 Restart</button>
+            <button class="btn btn-secondary" id="btn-levels">📋 Levels</button>
+            <button class="btn btn-info" id="btn-instructions">📖 Help</button>
+        </div>
+    </header>
+
+    <!-- Game Canvas Area -->
+    <main id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="mobile-controls">
+            <button class="ctrl-btn" data-dir="up">↑</button>
+            <div class="ctrl-row">
+                <button class="ctrl-btn" data-dir="left">←</button>
+                <button class="ctrl-btn" data-dir="down">↓</button>
+                <button class="ctrl-btn" data-dir="right">→</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Level Select Modal -->
+    <div id="level-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>Select Level</h2>
+            <div class="level-cards">
+                <div class="level-card" data-level="1">
+                    <h3>🌱 Easy</h3>
+                    <p>1 Guardian</p>
+                    <p>No moving walls</p>
+                    <button class="btn btn-primary select-level-btn">Play</button>
+                </div>
+                <div class="level-card" data-level="2">
+                    <h3>🔥 Medium</h3>
+                    <p>2 Guardians</p>
+                    <p>Moving walls</p>
+                    <button class="btn btn-primary select-level-btn">Play</button>
+                </div>
+                <div class="level-card" data-level="3">
+                    <h3>💀 Hard</h3>
+                    <p>3 Guardians</p>
+                    <p>Moving walls + puzzles</p>
+                    <button class="btn btn-primary select-level-btn">Play</button>
+                </div>
+            </div>
+            <button class="btn btn-secondary close-modal">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Instructions Modal -->
+    <div id="instructions-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>📖 How to Play</h2>
+            <div class="instructions-body">
+                <p><strong>Objective:</strong> Navigate the maze and reach the <span class="text-green">green exit
+                        portal</span> before guardians catch you!</p>
+                <h3>Controls</h3>
+                <ul>
+                    <li>⌨️ <strong>Arrow Keys</strong> or <strong>WASD</strong> to move</li>
+                    <li>📱 On mobile, use the on-screen D-pad</li>
+                </ul>
+                <h3>Collectibles</h3>
+                <ul>
+                    <li>🔑 <strong>Gold Keys</strong> — Collect all 3 to unlock the exit door</li>
+                    <li>🎁 <strong>Gift Boxes</strong> — Random power-ups:
+                        <ul>
+                            <li>⚡ Speed Boost — Move faster for 5 seconds</li>
+                            <li>❄️ Freeze — Freeze all guardians for 5 seconds</li>
+                        </ul>
+                    </li>
+                </ul>
+                <h3>Enemies</h3>
+                <ul>
+                    <li>👾 <strong>Guardians</strong> — Chase you using smart pathfinding</li>
+                    <li>New guardians spawn every 30 seconds (max 3)</li>
+                    <li>Guardians pause briefly if they hit a wall</li>
+                </ul>
+                <h3>Scoring</h3>
+                <ul>
+                    <li>⭐ +100 points per key collected</li>
+                    <li>⭐ +50 points per gift box collected</li>
+                    <li>⭐ +500 bonus for completing the level</li>
+                    <li>⭐ Star rating based on keys collected & time</li>
+                </ul>
+            </div>
+            <button class="btn btn-secondary close-modal">Got it!</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameover-modal" class="modal-overlay hidden">
+        <div class="modal-content gameover-content">
+            <h2 id="gameover-title">🎉 Congratulations!</h2>
+            <div id="stars-container" class="stars-container"></div>
+            <div class="gameover-stats">
+                <p>Score: <span id="final-score">0</span></p>
+                <p>Keys Collected: <span id="final-keys">0</span>/3</p>
+                <p>Time: <span id="final-time">00:00</span></p>
+                <p>Level: <span id="final-level">Easy</span></p>
+            </div>
+            <div class="gameover-buttons">
+                <button class="btn btn-primary" id="btn-replay">🔄 Play Again</button>
+                <button class="btn btn-secondary" id="btn-levels-from-end">📋 Levels</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/maze.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/guardian.js"></script>
+    <script src="js/puzzle.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+
+</html>
