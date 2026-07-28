@@ -285,6 +285,29 @@ html, body {
 }
 .text-green { color: var(--neon-green); font-weight: 600; }
 
+/* Settings */
+.settings-body { margin-bottom: 15px; }
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.setting-row label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.setting-row input[type="range"] {
+    width: 150px;
+    accent-color: var(--neon-blue);
+}
+.setting-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--neon-blue);
+}
+
 /* Game Over Modal */
 .gameover-content {
     text-align: center;
