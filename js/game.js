@@ -28,6 +28,7 @@ class Game {
         this.animFrameId = null;
         this.freezeTimer = 0;
         this.freezeDuration = 5;
+        this.floatingTexts = [];
 
         // Initialize
         this._resizeCanvas();
@@ -133,14 +134,23 @@ class Game {
         // Check for interactions (keys, gifts, exit)
         const interaction = this.puzzle.checkInteractions();
         if (interaction) {
-            if (interaction.type === 'gift' && interaction.powerup === 'freeze') {
-                this._freezeAllGuardians();
+            if (interaction.type === 'key') {
+                this._spawnFloatingText(this.player.r, this.player.c, '+100', '#f1c40f');
+            } else if (interaction.type === 'gift') {
+                this._spawnFloatingText(this.player.r, this.player.c,
+                    interaction.powerup === 'freeze' ? 'FREEZE' : 'SPEED', '#00d4ff');
+                if (interaction.powerup === 'freeze') {
+                    this._freezeAllGuardians();
+                }
             }
             if (interaction.type === 'exit') {
                 this._handleVictory();
                 return;
             }
         }
+
+        // Update floating texts
+        this._updateFloatingTexts(deltaTime);
 
         // Update guardians and check for spawn
         this._updateGuardians(deltaTime);
@@ -242,6 +252,44 @@ class Game {
         audio.playLevelStart();
     }
 
+    /** Spawn a floating text popup */
+    _spawnFloatingText(r, c, text, color) {
+        this.floatingTexts.push({
+            r, c, text, color,
+            life: 1.0,
+            offsetY: 0
+        });
+    }
+
+    /** Update floating texts */
+    _updateFloatingTexts(dt) {
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+            const ft = this.floatingTexts[i];
+            ft.life -= dt * 1.2;
+            ft.offsetY -= dt * 40;
+            if (ft.life <= 0) this.floatingTexts.splice(i, 1);
+        }
+    }
+
+    /** Render floating texts */
+    _renderFloatingTexts() {
+        const ctx = this.ctx;
+        const cs = this.cellSize;
+        for (const ft of this.floatingTexts) {
+            const x = ft.c * cs + cs / 2;
+            const y = ft.r * cs + ft.offsetY;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, ft.life);
+            ctx.fillStyle = ft.color;
+            ctx.font = `bold ${cs * 0.4}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.shadowColor = ft.color;
+            ctx.shadowBlur = 10;
+            ctx.fillText(ft.text, x, y);
+            ctx.restore();
+        }
+    }
+
     /** Render everything to the canvas */
     _render() {
         const ctx = this.ctx;
@@ -316,6 +364,9 @@ class Game {
 
         // Draw player
         this._drawPlayer();
+
+        // Draw floating score texts
+        this._renderFloatingTexts();
 
         // Draw freeze overlay if active
         if (this.freezeTimer > 0) {
