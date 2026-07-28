@@ -189,6 +189,30 @@ class Maze {
         }
     }
 
+    /** Validate maze is solvable using BFS from start to exit */
+    validate() {
+        const visited = Array.from({ length: this.rows }, () =>
+            Array(this.cols).fill(false)
+        );
+        const queue = [{ r: this.playerStart.r, c: this.playerStart.c }];
+        visited[this.playerStart.r][this.playerStart.c] = true;
+        const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+        while (queue.length > 0) {
+            const { r, c } = queue.shift();
+            if (r === this.exitPos.r && c === this.exitPos.c) return true;
+            for (const [dr, dc] of dirs) {
+                const nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols &&
+                    !visited[nr][nc] && this.grid[nr][nc] !== 1) {
+                    visited[nr][nc] = true;
+                    queue.push({ r: nr, c: nc });
+                }
+            }
+        }
+        return false;
+    }
+
     /** Check if a cell is walkable */
     isWalkable(r, c) {
         if (r < 0 || r >= this.rows || c < 0 || c >= this.cols) return false;
