@@ -20,6 +20,11 @@ class Game {
         this.canvasWidth = 0;
         this.canvasHeight = 0;
 
+        // Offscreen buffer for static maze (performance)
+        this.mazeBuffer = null;
+        this.mazeBufferCtx = null;
+        this.mazeDirty = true;
+
         // Game state
         this.isRunning = false;
         this.isGameOver = false;
@@ -49,6 +54,53 @@ class Game {
         
         this.canvas.width = this.canvasWidth;
         this.canvas.height = this.canvasHeight;
+        this.mazeDirty = true;
+    }
+
+    /** Initialize offscreen buffer for static maze walls */
+    _initMazeBuffer() {
+        this.mazeBuffer = document.createElement('canvas');
+        this.mazeBuffer.width = this.canvasWidth;
+        this.mazeBuffer.height = this.canvasHeight;
+        this.mazeBufferCtx = this.mazeBuffer.getContext('2d');
+        this.mazeDirty = true;
+        this._renderMazeToBuffer();
+    }
+
+    /** Render static maze walls to offscreen buffer */
+    _renderMazeToBuffer() {
+        if (!this.mazeDirty || !this.mazeBufferCtx) return;
+        const ctx = this.mazeBufferCtx;
+        const cs = this.cellSize;
+        const rows = this.maze.rows;
+        const cols = this.maze.cols;
+
+        ctx.fillStyle = '#0a0a1a';
+        ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const x = c * cs;
+                const y = r * cs;
+                const cell = this.maze.grid[r][c];
+
+                if (cell === 1) {
+                    ctx.fillStyle = '#2c1810';
+                    ctx.fillRect(x, y, cs, cs);
+                    ctx.fillStyle = '#4a2a1a';
+                    ctx.fillRect(x + 2, y + 2, cs - 4, cs - 4);
+                    ctx.strokeStyle = '#5a3a2a';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(x, y, cs, cs);
+                } else {
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.fillRect(x, y, cs, cs);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+                    ctx.fillRect(x + 1, y + 1, cs - 2, cs - 2);
+                }
+            }
+        }
+        this.mazeDirty = false;
     }
 
     /** Set the current level and initialize game */
@@ -73,6 +125,9 @@ class Game {
         // Generate maze
         this.maze = new Maze(config.mazeSize, config.mazeSize, this.levelManager.currentLevel);
         this.maze.generate();
+
+        // Initialize offscreen buffer for static maze
+        this._initMazeBuffer();
 
         // Create player
         this.player = new Player(this.maze);
@@ -249,44 +304,26 @@ class Game {
         const rows = this.maze.rows;
         const cols = this.maze.cols;
 
-        // Clear canvas with dark background
-        ctx.fillStyle = '#0a0a1a';
-        ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+        // Draw pre-rendered maze from offscreen buffer
+        if (this.mazeBuffer) {
+            ctx.drawImage(this.mazeBuffer, 0, 0);
+        } else {
+            ctx.fillStyle = '#0a0a1a';
+            ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+        }
 
-        // Draw maze cells
+        // Draw dynamic items (keys, exit, gifts) on top
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
                 const x = c * cs;
                 const y = r * cs;
                 const cell = this.maze.grid[r][c];
-
-                if (cell === 1) {
-                    // Wall - red/brown with border
-                    ctx.fillStyle = '#2c1810';
-                    ctx.fillRect(x, y, cs, cs);
-                    ctx.fillStyle = '#4a2a1a';
-                    ctx.fillRect(x + 2, y + 2, cs - 4, cs - 4);
-                    ctx.strokeStyle = '#5a3a2a';
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(x, y, cs, cs);
-                } else {
-                    // Path - beige/dark
-                    ctx.fillStyle = '#1a1a2e';
-                    ctx.fillRect(x, y, cs, cs);
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
-                    ctx.fillRect(x + 1, y + 1, cs - 2, cs - 2);
-
-                    // Check for special items
-                    if (cell === 2) {
-                        // Key - glowing gold
-                        this._drawKey(x, y, cs);
-                    } else if (cell === 3) {
-                        // Exit portal - pulsing green
-                        this._drawExit(x, y, cs);
-                    } else if (cell === 4) {
-                        // Gift box - bouncing
-                        this._drawGiftBox(x, y, cs);
-                    }
+                if (cell === 2) {
+                    this._drawKey(x, y, cs);
+                } else if (cell === 3) {
+                    this._drawExit(x, y, cs);
+                } else if (cell === 4) {
+                    this._drawGiftBox(x, y, cs);
                 }
             }
         }
