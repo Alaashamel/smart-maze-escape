@@ -9,7 +9,8 @@ class UIManager {
         this.modals = {
             level: document.getElementById('level-modal'),
             instructions: document.getElementById('instructions-modal'),
-            gameover: document.getElementById('gameover-modal')
+            gameover: document.getElementById('gameover-modal'),
+            settings: document.getElementById('settings-modal')
         };
         
         this._bindEvents();
@@ -21,6 +22,20 @@ class UIManager {
         document.getElementById('btn-restart').addEventListener('click', () => this.game.restart());
         document.getElementById('btn-levels').addEventListener('click', () => this.showLevelModal());
         document.getElementById('btn-instructions').addEventListener('click', () => this.showInstructionsModal());
+        document.getElementById('btn-settings').addEventListener('click', () => this.showSettingsModal());
+
+        // Settings controls
+        const volumeSlider = document.getElementById('volume-slider');
+        const muteToggle = document.getElementById('mute-toggle');
+        volumeSlider.addEventListener('input', (e) => {
+            const vol = parseInt(e.target.value) / 100;
+            if (audio.masterGain) audio.masterGain.gain.value = vol;
+            localStorage.setItem('maze-volume', e.target.value);
+        });
+        muteToggle.addEventListener('change', () => {
+            audio.toggleMute();
+            localStorage.setItem('maze-muted', muteToggle.checked);
+        });
 
         // Level select buttons
         document.querySelectorAll('.select-level-btn').forEach((btn, index) => {
@@ -124,6 +139,12 @@ class UIManager {
     showInstructionsModal() {
         this.hideAllModals();
         this.modals.instructions.classList.remove('hidden');
+    }
+
+    /** Show the settings modal */
+    showSettingsModal() {
+        this.hideAllModals();
+        this.modals.settings.classList.remove('hidden');
     }
 
     /** Show the game over modal with star rating */
