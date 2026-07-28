@@ -326,6 +326,7 @@ class Game {
 
     /** Draw a glowing golden key */
     _drawKey(x, y, size) {
+        const ctx = this.ctx;
         const cx = x + size / 2;
         const cy = y + size / 2;
         const time = performance.now() / 800;
@@ -365,6 +366,7 @@ class Game {
 
     /** Draw pulsing green exit portal */
     _drawExit(x, y, size) {
+        const ctx = this.ctx;
         const cx = x + size / 2;
         const cy = y + size / 2;
         const time = performance.now() / 600;
@@ -410,6 +412,7 @@ class Game {
 
     /** Draw bouncing gift box */
     _drawGiftBox(x, y, size) {
+        const ctx = this.ctx;
         const cx = x + size / 2;
         const cy = y + size / 2;
         const time = performance.now() / 400;
@@ -443,6 +446,7 @@ class Game {
 
     /** Draw a guardian with red glow */
     _drawGuardian(guardian) {
+        const ctx = this.ctx;
         const cs = this.cellSize;
         const x = guardian.c * cs;
         const y = guardian.r * cs;
@@ -511,6 +515,7 @@ class Game {
 
     /** Draw player with blue aura */
     _drawPlayer() {
+        const ctx = this.ctx;
         const cs = this.cellSize;
         const x = this.player.c * cs;
         const y = this.player.r * cs;
