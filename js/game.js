@@ -181,7 +181,10 @@ class Game {
                 pos.c
             );
             const config = this.levelManager.getConfig();
-            newGuardian.moveInterval = 1.0 / config.guardianSpeed;
+            // Each new guardian is 15% faster than the base speed
+            const speedMultiplier = 1 + (this.guardians.length * 0.15);
+            newGuardian.baseMoveInterval = 1.0 / config.guardianSpeed;
+            newGuardian.scaleSpeed(speedMultiplier);
             this.guardians.push(newGuardian);
             audio.playGuardianAlert();
             this.ui.showCanvasMessage('⚠️ New Guardian Spawned!');

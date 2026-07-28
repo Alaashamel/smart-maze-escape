@@ -18,6 +18,7 @@ class Guardian {
         this.speed = 0.4;           // Moves every ~2.5 sec at base (cells per sec)
         this.moveTimer = 0;
         this.moveInterval = 1.0;    // Move every 1 second
+        this.baseMoveInterval = 1.0;
         this.paused = false;
         this.pauseTimer = 0;
         this.pauseDuration = 1.0;   // Pause 1 sec after wall hit
@@ -158,6 +159,11 @@ class Guardian {
     freeze(duration = 5) {
         this.frozen = true;
         this.freezeTimer = duration;
+    }
+
+    /** Scale speed based on difficulty multiplier (1.0 = base, 2.0 = double speed) */
+    scaleSpeed(multiplier) {
+        this.moveInterval = this.baseMoveInterval / multiplier;
     }
 
     /** Get the current visual state for rendering */
